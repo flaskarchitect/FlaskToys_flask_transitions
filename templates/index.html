@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FFmpeg Command Executor</title>
+</head>
+<body>
+    <h1>Convert Wide Video to Vertical Scrol MP4</h1>
+    
+    <form action="/execute" method="post">
+        <label for="input_file">Input: Wide *jpg</label>
+        <input type="text" name="input_file" required><br>
+
+        <label for="output_file">Output File Name: *.mp4:</label>
+        <input type="text" name="output_file" required><br>
+
+        <button type="submit">Execute FFmpeg Command</button>
+    </form>
+    <hr>
+
+  <h1>Zoom_n_Overlay</h1>
+    
+    <form action="/zoom_n_overlay" method="post">
+        <label for="input_dir">Input Directory:</label>
+        <input type="text" name="input_dir" required><br>
+        <button type="submit">Slide and Zoom</button>
+    </form>
+    <hr>
+ <h1>Minterpolate Effect and Pad</h1>
+    
+    <form action="/pad_effect" method="post">
+        <label for="input_directory">Input Directory:</label>
+        <input type="text" name="input_directory" required><br>
+        <button type="submit">Minterpolate and Pad</button>
+    </form>
+<h1>3/4 sec per frame video</h1>
+    
+    <form action="/mk_video" method="post">
+        <label for="image_files">Input Directory:</label>
+        <input type="text" name="image_files" required><br>
+        <button type="submit">3/4 sec per frame video</button>
+    </form>
+        <video width="300" height="auto" controls>
+        <source src="{{ url_for('static', filename=video) }}" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>  
+</body>
+</html>
+

@@ -1,0 +1,470 @@
+#!/home/jack/miniconda3/envs/cloned_base/bin/python
+# creates a small transparent overlay that as it get larger increates in opacity 
+from PIL import Image
+import subprocess
+import uuid
+import os
+import random
+import glob
+from sys import argv
+import shutil
+from random import randint
+from moviepy.video.compositing.transitions import slide_in
+from moviepy.video.fx import all
+from moviepy.editor import *
+import glob
+import random
+from PIL import Image
+import cv2
+import uuid
+import shutil
+# Define the directory path
+
+
+direct_temp = "temp/"
+
+
+# Check if the directory exists, and if not, create it
+if not os.path.exists(direct_temp):
+    os.makedirs(direct_temp)
+
+directory = "gif/"
+
+
+# Check if the directory exists, and if not, create it
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
+if os.path.exists(directory):
+    for file in os.listdir(directory):
+        os.remove(directory+"/"+file)     
+    
+def zoom_effect(base_image_path, overlay_image_path):
+    bg = Image.open(base_image_path).convert('RGBA')
+    SIZE = bg.size
+    bg = bg.resize((SIZE), Image.BICUBIC)
+    fg = Image.open(overlay_image_path).convert('RGBA')
+    fg = fg.resize((SIZE), Image.BICUBIC)
+    fg_copy = fg.copy()
+    fg_copy = fg_copy.resize((int(fg_copy.width), int(fg_copy.height)))
+    result_images = []
+    for i in range(200):
+        print(".",end="-")
+        size = (int(fg_copy.width * (i+1)/200), int(fg_copy.height * (i+1)/200))
+        fg_copy_resized = fg_copy.resize(size)
+        fg_copy_resized.putalpha(int((i+1)*255/200))
+        fg_copy_resized = fg_copy_resized.convert('RGBA')
+        fg_copy_resized.putalpha(int((i+1)*255/200))
+        result = bg.copy()
+        x = int((bg.width - fg_copy_resized.width)/2)
+        y = int((bg.height - fg_copy_resized.height)/2)
+        result.alpha_composite(fg_copy_resized, (x, y))
+        #result.save("gifs/_"+str(i)+".png")
+        result_images.append(result)
+    for cnt in range(0,20):
+        result_images.append(result)
+
+    # Save the resulting images as a GIF animation
+    result_images[0].save('gif/zoom_effect2.gif', save_all=True, append_images=result_images[1:], optimize=False, duration=100, loop=0)
+
+for i in range(0,40,2):
+    overlay_image_path =  random.choice(glob.glob(argv[1]+"*.jpg"))
+    base_image_path =  random.choice(glob.glob(argv[1]+"*.jpg"))
+    zoom_effect(base_image_path, overlay_image_path)
+    # Convert the WAV file to MP3 using FFmpeg
+    base_filename = str(uuid.uuid4())
+    #subprocess.run(["ffmpeg", "-i", "gifs/zoom_effect2.gif", "gifs/"+base_filename+".mp4"])
+    command=["ffmpeg", "-i", "gif/zoom_effect2.gif", "-y", "gif/"+base_filename+"+.mp4"]
+    subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print(i,end=" . ")
+
+
+# Define the directory containing the MP4 files
+directory = "gif/"
+output_video = "gif/All_gifs2.mp4"
+
+# List all MP4 files in the directory
+input_files = [f for f in os.listdir(directory) if f.endswith("+.mp4")]
+
+# Create a file list for ffmpeg
+file_list = "input.txt"
+
+with open(file_list, "w") as f:
+    for input_file in input_files:
+        f.write(f"file 'gif/{input_file}'\n")
+
+# Run ffmpeg to concatenate the MP4 files
+command = [
+    "ffmpeg", "-f", "concat", "-safe", "0", "-i", file_list, "-c", "copy", "-y" ,output_video
+]
+
+# Join the command into a single string for printing
+command_str = " ".join(command)
+print("Command:", command_str)
+subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+# Run ffmpeg
+def speed_up():
+    output_fast = 'static/videos/output_fast.mp4'
+    command2 = [
+        "ffmpeg", "-i", "gif/All_gifs2.mp4", "-vf", "setpts=0.09*PTS", "-an", "-y", "static/videos/output_fast.mp4"
+    ]
+    # Join the command into a single string for printing
+    command_str2 = " ".join(command2)
+    print("Command2:", command_str2)
+    # Run ffmpeg
+    subprocess.run(command2, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    uid = str(uuid.uuid4())  # Generate a unique ID using uuid
+    mp4_zoom =  f"/home/jack/Desktop/HDD500/collections/vids/Zoom_Fast_{uid}.mp4"
+    title_image_path = "/mnt/HDD500/EXPER/static/assets/Title_Image02.png"
+    shutil.copyfile(output_fast, mp4_zoom)
+    # Clean up the file list
+    print("Video Created at: ",mp4_zoom)
+
+speed_up()    
+#os.remove(file_list)
+
+
+   
+def HELP():
+    text ="""
+    DIR="/home/jack/Desktop/LearnFlask_step-by-step/static/imagez/misc_images/"
+    title_image_path = "/mnt/HDD500/EXPER/static/assets/Title_Image02.png"
+    #video_path = generate_video(DIR)
+    video_path = slidein(DIR)
+    #add_title_image(video_path, title_image_path, hex_color = "#408913")
+    add_title_image(video_path, hex_color = "#A52A2A")
+    """
+    print(text)
+    return (text)
+# Set the output video parameters
+def add_title_image(video_path, title_image_path, hex_color = "#94493c"):
+    print("add_title_image: ",video_path,title_image_path)
+    # Load the video file and title image
+    video_clip = VideoFileClip(video_path)
+    print(video_clip.size)
+    width, height = video_clip.size
+
+    # Set the desired size of the padded video (e.g., video width + padding, video height + padding)
+    padded_size = (width + 90, height + 90)
+
+    # Calculate the position for centering the video within the larger frame
+    x_position = (padded_size[0] - video_clip.size[0]) / 2
+    y_position = (padded_size[1] - video_clip.size[1]) / 2
+    #hex_color = "#09723c"
+    # Remove the '#' and split the hex code into R, G, and B components
+    r = int(hex_color[1:3], 16)
+    g = int(hex_color[3:5], 16)
+    b = int(hex_color[5:7], 16)
+
+    # Create an RGB tuple
+    rgb_tuple = (r, g, b)
+
+    # Create a blue ColorClip as the background
+    blue_background = ColorClip(padded_size, color=rgb_tuple)
+
+    # Add the video clip on top of the red background
+    padded_video_clip = CompositeVideoClip([blue_background, video_clip.set_position((x_position, y_position))])
+    padded_video_clip = padded_video_clip.set_duration(video_clip.duration)
+    #title_image_path = "/home/jack/Desktop/EXPER/static/assets/Title_Image02.png"
+    # Load the title image
+    title_image = ImageClip(title_image_path)
+
+    # Set the duration of the title image
+    title_duration = video_clip.duration
+    title_image = title_image.set_duration(title_duration)
+
+    print(video_clip.size)
+    # Position the title image at the center and resize it to fit the video dimensions
+    #title_image = title_image.set_position(("left", "top"))
+    title_image = title_image.set_position((0, -5))
+    #video_clip.size = (620,620)
+    title_image = title_image.resize(padded_video_clip.size)
+
+    # Position the title image at the center and resize it to fit the video dimensions
+    #title_image = title_image.set_position(("center", "center")).resize(video_clip.size)
+
+    # Create a composite video clip with the title image overlay
+    composite_clip = CompositeVideoClip([padded_video_clip, title_image])
+    # Limit the length to 58 seconds
+    composite_clip = composite_clip.subclip(0, 40)
+    # Load a random background music
+    mp3_files = glob.glob("/mnt/HDD500/collections/Music/*.mp3")
+    random.shuffle(mp3_files)
+
+    # Now choose a random MP3 file from the shuffled list
+    mp_music = random.choice(mp3_files)
+
+    # Load the background music without setting duration
+    music_clip = AudioFileClip(mp_music)
+    music_clip = music_clip.subclip(0, 40)
+    fade_duration = 1.0
+    music_clip = music_clip.audio_fadein(fade_duration).audio_fadeout(fade_duration)
+    # Set the audio of the composite clip to the background music
+    composite_clip = composite_clip.set_audio(music_clip)
+    output_path = 'temp/final_output3.mp4'
+    # Export the final video with the background music
+    composite_clip.write_videofile(output_path)
+    vidpad = video_path.split("/")[-1]  
+    print("vidpad: ",vidpad)
+    uid = str(uuid.uuid4())  # Generate a unique ID using uuid
+    mp4_file =  f"/home/jack/Desktop/HDD500/collections/vids/{vidpad}_{uid}.mp4"
+    shutil.copyfile(output_path, mp4_file)     
+    print(mp4_file)
+    VIDEO = output_path
+    return VIDEO
+
+def slidein(DIR):
+    print("slidein_DIR: ",DIR)
+    image_files=glob.glob(DIR+"*.jpg")
+    print("image_files: ",image_files)
+    fps = 25 # Frames per second
+    #size = (512, 768) # Size of the output video
+    duration =1 # Duration of each image in seconds
+    size=Image.open(image_files[1]).size
+    random.shuffle(image_files)
+    print(image_files)
+    # Create a list of image clips with transitions
+    clips = []
+
+    for i in range(len(image_files)):
+        # Load the image and create a video clip
+        image_clip = ImageClip(image_files[i]).set_duration(duration)
+        direction = random.choice(['right','left','top','bottom'])
+        
+        if i > 0:
+            # Add a vertical slide transition to the previous clip
+            transition = slide_in(image_clip, duration=1, side=direction)
+            clips.append(CompositeVideoClip([clips[-1], transition]).set_duration(1))
+            
+        clips.append(image_clip)
+
+    # Concatenate the clips to create the final video
+    video = concatenate_videoclips(clips)
+
+    # Set the output video parameters
+    video = video.set_fps(fps)
+    video = video.resize(size)
+
+    # Save the video
+    VIDEO = 'temp/final_output.mp4'
+    video.write_videofile(VIDEO)
+    print("Video Created at: ",VIDEO)
+    return VIDEO
+
+def get_an_mp3():
+    all_mp3s = glob.glob("/home/jack/Desktop/HDD500/collections/Music/*.mp3")
+    random.shuffle(all_mp3s)
+    MP3 = random.choice(all_mp3s)
+    return MP3 
+
+def generate_video(DIR):
+        print("generate_video-DIR: ",DIR)
+        image_files = glob.glob(DIR+"*.jpg")
+        # Shuffle the image files to mix them randomly
+        random.shuffle(image_files)
+
+        # Create a temporary directory to store the resized images
+        temp_dir = 'temp/'
+        os.makedirs(temp_dir, exist_ok=True)
+        print("LEN IMAGE_FILES",len(image_files))    
+        # Load and resize the images
+        resized_images = []
+        for image_file in image_files:
+            print("LEN IMAGE_FILES",len(image_files))
+            im = Image.open(image_files[1])
+            SIZE = im.size
+            print("-",SIZE,end=" ")
+            img = cv2.imread(image_file)
+            img = cv2.resize(img, SIZE)  # Resize to the same size as the original image
+            resized_images.append(img)
+
+        # Create a video writer
+        out_path = 'temp/output.mp4'
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # You may need to change the codec depending on your system
+        out = cv2.VideoWriter(out_path, fourcc, 30, SIZE)
+
+        # Keep track of video duration
+        video_duration = 0
+
+        # Create the video with fading transitions
+        for i in range(len(resized_images)):
+            if video_duration >= 58:  # Limit video to 58 seconds
+                break
+
+            img1 = resized_images[i]
+            img2 = resized_images[(i + 1) % len(resized_images)]  # Wrap around to the first image
+            # changing the alpha step size will change the duration of the fade effect
+            step_size = 5
+            for alpha in range(0, 150):  # Gradually change alpha from 0 to 100 for fade effect
+                alpha /= 150.0
+                blended = cv2.addWeighted(img1, 1 - alpha, img2, alpha, 0)
+                out.write(blended)
+                video_duration += 1 / 30  # Assuming 30 FPS
+
+        out.release()
+
+        # Prepare an audio clip of the same duration (58 seconds)
+        audio_clip = AudioFileClip(get_an_mp3())  # Replace with your audio file path
+        audio_clip = audio_clip.subclip(0, 58)  # Limit audio to 58 seconds
+        # Load the video clip
+        video_clip = VideoFileClip(out_path)
+
+        # Set the audio of the video clip
+        video_clip = video_clip.set_audio(audio_clip)
+
+        # Save the final video with music
+        final_output_path = 'temp/final_output.mp4'
+        uid = str(uuid.uuid4())  # Generate a unique ID using uuid
+        mp4_file =  f"temp/{uid}.mp4"
+      
+        
+        video_clip.write_videofile(final_output_path, codec='libx264')
+        shutil.copyfile(final_output_path, mp4_file) 
+        print(final_output_path)
+        VIDEO=final_output_path
+        return VIDEO
+def mk_video(DIR):
+    vid_filename = 'static/videos/image_show.mp4'
+    image_files = DIR
+    print(image_files)
+    #command2 = f"ffmpeg -framerate 2 -i {image_files} -c:v libx265 -r 30 -pix_fmt yuv420p -t 38 -y {vid_filename}"
+    command2 = f"ffmpeg -framerate 2 -i {image_files}%05d.jpg -c:v libx265 -r 30 -pix_fmt yuv420p -t 38 -y {vid_filename}"
+    subprocess.run(command2, shell=True)
+    uid = str(uuid.uuid4())  # Generate a unique ID using uuid
+    mp4_show =  f"/home/jack/Desktop/HDD500/collections/vids/Image_show_{uid}.mp4"
+    shutil.copyfile(vid_filename, mp4_show)  
+    return vid_filename
+def minterpolate_video(DIR):
+    # Create a unique ID using uuid
+    uid = str(uuid.uuid4())
+
+    # Define the directory containing MP3 files
+    MUSIC_DIR = "/home/jack/Desktop/FlaskAppArchitect_Flask_App_Creator/static/MUSIC/"
+
+ # Use glob to get a list of image files in the specified directory
+    image_files = glob.glob(os.path.join(DIR, '*.jpg'))
+
+    # Shuffle the list of image files
+    shuffled_images = random.sample(image_files, len(image_files))
+
+    # Build the ffmpeg command using the shuffled images
+    subprocess.run([
+        'ffmpeg', '-framerate', '17', '-pattern_type', 'glob', '-i', f'{DIR}*.jpg',
+        '-c:v', 'libx265', '-r', '30', '-pix_fmt', 'yuv420p', '-y', 'start.mp4'
+    ])
+
+    subprocess.run([
+        'ffmpeg', '-hide_banner', '-i', 'start.mp4',
+        '-filter:v', "minterpolate='mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=10'",
+        '-c:v', 'libx264', '-r', '20', '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-y', 'output2.mp4'
+    ])
+
+    subprocess.run([
+        'ffmpeg', '-hide_banner', '-i', 'output2.mp4',
+        '-filter:v', "setpts=7*PTS,minterpolate='fps=25:scd=none:me_mode=bidir:vsbmc=1:search_param=200'",
+        '-y', 'final2l.mp4'
+    ])
+
+    subprocess.run([
+        'ffmpeg', '-hide_banner', '-i', 'final2l.mp4',
+'-filter:v', "setpts=7*PTS,minterpolate='fps=25:scd=none:me_mode=bidir:vsbmc=1:search_param=200'",'-t',' 36',
+        '-y', 'final5l.mp4'
+    ])
+
+    # Use os.path.join to join paths
+    random_mp3 = random.choice(glob.glob(MUSIC_DIR+'*.mp3'))
+
+    # Print the path of the randomly selected MP3 file
+    print(f"Randomly selected MP3 file: {os.path.join(MUSIC_DIR, random_mp3)}")
+
+    # Function to get a random number between 50 and 100
+    def get_random_seconds():
+        return randint(50, 100)
+
+    # Function to get a random music file from the MUSIC array
+    def get_random_music():
+        # Define the directory containing MP3 files
+        MUSIC_DIR = "/home/jack/Desktop/FlaskAppArchitect_Flask_App_Creator/static/MUSIC/"
+        return random.choice(glob.glob(MUSIC_DIR+'*.mp3'))
+
+    # Get random init seconds and music file
+    init_seconds = get_random_seconds()
+    random_music = get_random_music()
+
+    # Run ffmpeg command
+    mp4_show = f"/home/jack/Desktop/HDD500/collections/vids/Minterpolate_{uid}.mp4"
+    subprocess.run([
+        'ffmpeg', '-i', 'final5l.mp4', '-ss', str(init_seconds), '-i', os.path.join(MUSIC_DIR, random_music),
+        '-af', 'afade=in:st=0:d=4,afade=out:st=33:d=3', '-map', '0:0', '-map', '1:0', '-shortest', '-y', mp4_show
+    ])
+
+    # Use shutil.copyfile to copy the final video
+    vid_filename = "static/videos/minterpolate.mp4"
+    shutil.copyfile(mp4_show, vid_filename)
+    return vid_filename
+
+#video_path = slidein(DIR)
+def storeit (video_path):
+    # Split the video_path using '/'
+    path_parts = video_path.split('/')
+    fname = "POSTED_" + video_path.split("/")[-1]
+    print(fname)
+    uid = str(uuid.uuid4())  # Generate a unique ID using uuid
+    dest =  f"/home/jack/Desktop/HDD500/collections/vids/storeit_{fname[:-4]}{uid}.mp4"    
+    print (dest)
+    # Join the path parts up to the last directory to reconstruct the base path
+    print("Source:", video_path, "  Base Path:", dest)
+    src = "temp/final_output.mp4"
+    shutil.copy(src, dest)
+    #if os.path.exists(video_path):
+    #    os.remove(video_path)
+    #    print(f"File '{video_path}' has been removed.")
+    #else:
+    #    print(f"File '{video_path}' does not exist, so it cannot be removed.")
+
+def cleanup(directory):
+    if os.path.exists(directory):
+        for file in os.listdir(directory):
+            os.remove(directory+"/"+file)
+            print(directory,"REMOVED")    
+
+if __name__=="__main__":
+   video_path = "gif/All_gifs2.mp4"
+   title_image_path = "static/assets/Title_Image02.png"
+   DIR = argv[1]
+   print(DIR)
+   print("1------------")  
+   title_image_path = "static/assets/Title_Image02.png"
+   video_path = 'static/videos/output_fast.mp4'
+   DIR = base_image_path
+   add_title_image(video_path, title_image_path, hex_color = "#94493c")
+   print("2------------")  
+   title_image_path = "static/assets/Title_slidein.png"
+   DIR = argv[1]
+   #add_title_image(slidein(DIR), title_image_path, hex_color = "#062f63") 
+   slidein(DIR)
+   print("3---Slidein complete------") 
+   DIR = argv[1] 
+   title_image_path = "static/assets/Fades.png"    
+   add_title_image(generate_video(DIR), title_image_path, hex_color = "#3c6e5c")
+   print("4------------")
+   title_image_path = "static/assets/Title_Image02.png"  
+   add_title_image(video_path, title_image_path, hex_color = "#3c6e5c")
+   print("5------------")  
+   output_fast = 'static/videos/output_fast.mp4'
+   print("6------------") 
+   add_title_image(output_fast, title_image_path, hex_color = "#3c6e5c")
+   print("7------------")
+   DIR = argv[1] 
+   title_image_path = "static/assets/Title_transitions.png"
+   add_title_image(mk_video(DIR), title_image_path, hex_color = "#088d5b")
+   DIR = argv[1] 
+   title_image_path = "static/assets/Minterpolate-0.png"
+   add_title_image(minterpolate_video(DIR), title_image_path, hex_color = "#088d5b")
+   DIR = argv[1] 
+   title_image_path = "static/assets/Minterpolate.png"
+   add_title_image(minterpolate_video(DIR), title_image_path, hex_color = "#088d5b")
+   directory = "gif"
+   cleanup(directory)
+   print("completed") 

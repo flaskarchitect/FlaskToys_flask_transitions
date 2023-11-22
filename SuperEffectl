@@ -1,0 +1,40 @@
+import subprocess
+import uuid
+import shutil
+import os
+
+def minterpolatre_video(DIR):
+    ffmpeg -framerate 17 -i DIR%05d.jpg -c:v libx265 -r 30 -pix_fmt yuv420p -y start.mp4
+    ffmpeg -hide_banner -i start.mp4" -filter:v "minterpolate='mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=10'" -c:v libx264 -r 20 -pix_fmt yuv420p -c:a copy -youtput2.mp4"  
+    ffmpeg -hide_banner -i output2.mp4" -filter:v "setpts=7*PTS,minterpolate='fps=25:scd=none:me_mode=bidir:vsbmc=1:search_param=200'" -y "final2l.mp4"
+    ffmpeg -hide_banner -i "final2l.mp4" -filter:v "setpts=7*PTS,minterpolate='fps=25:scd=none:me_mode=bidir:vsbmc=1:search_param=200'" -y "final5l.mp4"
+    # Define the directory containing MP3 files
+    MUSIC_DIR="/home/jack/Desktop/FlaskAppArchitect_Flask_App_Creator/static/MUSIC/"
+    # Use find to list all MP3 files in the directory and subdirectories
+    music=($(find "$MUSIC_DIR" -type f -name "*.mp3"))
+    # Check if there are any MP3 files in the directory
+    if [ ${#music[@]} -eq 0 ]; then
+    echo "No MP3 files found in $MUSIC_DIR"
+    exit 1
+    fi
+    # Use shuf to select a random MP3 file from the list
+    random_mp3="${music[$(shuf -i 0-$((${#music[@]}-1)) -n 1)]}"
+    # Print the path of the randomly selected MP3 file
+    echo "Randomly selected MP3 file: $random_mp3"
+    # Function to get a random number between 50 and 100
+    get_random_seconds() {
+    echo $((RANDOM % 51 + 50))
+    }
+    # Function to get a random music file from the MUSIC array
+    get_random_music() {
+      echo "${music[$(shuf -i 0-$((${#music[@]}-1)) -n 1)]}"
+    }
+    # Get random init seconds and music file
+    init=$(get_random_seconds)
+    music=$(get_random_music)
+    # Run ffmpeg command
+    uid = str(uuid.uuid4())  # Generate a unique ID using uuid
+    mp4_show =  f"/home/jack/Desktop/HDD500/collections/vids/Image_show_{uid}.mp4"
+    ffmpeg -i final5l.mp4 -ss "$init" -i "$music" -af 'afade=in:st=0:d=4' -map 0:0 -map 1:0 -shortest -y mp4_show
+    shutil.copyfile(vid_filename, mp4_show) 
+    return mp4show

@@ -1,0 +1,72 @@
+#!/bin/bash
+
+cd $1
+ffmpeg -framerate 17 -i %05d.jpg -c:v libx265 -r 30 -pix_fmt yuv420p -y start.mp4
+ls "$(pwd)/start.mp4"
+
+
+################################################################################
+# SuperEffect Script
+# This script processes a sequence of images into a video, applies video effects,
+# adds background music, and generates a final video output. It provides an
+# automated way to create dynamic videos with various effects and music.
+#
+# Usage: Place the script in the same directory as a sequence of images in
+#        filename format %05d.jpg (e.g., 00001.jpg, 00002.jpg, ...).
+#        Run the script and follow the on-screen instructions to create the final
+#        video with effects and music.
+#
+# Author: Jack Northrup
+# Date: Tuesday, 22 August, 2023 08:24:28 AM PST
+################################################################################
+
+# Rest of the script...
+
+ffmpeg -hide_banner -i "$(pwd)/start.mp4" -filter:v "minterpolate='mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=10'" -c:v libx264 -r 20 -pix_fmt yuv420p -c:a copy -y "$(pwd)/output2.mp4"  
+echo "done 1"  
+
+ffmpeg -hide_banner -i "$(pwd)/output2.mp4" -filter:v "setpts=7*PTS,minterpolate='fps=25:scd=none:me_mode=bidir:vsbmc=1:search_param=200'" -y "$(pwd)/final2l.mp4"
+echo "done 2"   
+ffmpeg -hide_banner -i "$(pwd)/final2l.mp4" -filter:v "setpts=7*PTS,minterpolate='fps=25:scd=none:me_mode=bidir:vsbmc=1:search_param=200'" -y "$(pwd)/final5l.mp4"
+echo "done 3"
+
+# Define the directory containing MP3 files
+MUSIC_DIR="/home/jack/Desktop/FlaskAppArchitect_Flask_App_Creator/static/MUSIC/"
+
+# Use find to list all MP3 files in the directory and subdirectories
+music=($(find "$MUSIC_DIR" -type f -name "*.mp3"))
+
+# Check if there are any MP3 files in the directory
+if [ ${#music[@]} -eq 0 ]; then
+    echo "No MP3 files found in $MUSIC_DIR"
+    exit 1
+fi
+
+# Use shuf to select a random MP3 file from the list
+random_mp3="${music[$(shuf -i 0-$((${#music[@]}-1)) -n 1)]}"
+
+# Print the path of the randomly selected MP3 file
+echo "Randomly selected MP3 file: $random_mp3"
+# Function to get a random number between 50 and 100
+get_random_seconds() {
+  echo $((RANDOM % 51 + 50))
+}
+
+# Function to get a random music file from the MUSIC array
+get_random_music() {
+  echo "${music[$(shuf -i 0-$((${#music[@]}-1)) -n 1)]}"
+}
+
+# Get random init seconds and music file
+init=$(get_random_seconds)
+music=$(get_random_music)
+
+# Run ffmpeg command
+ffmpeg -i final5l.mp4 -ss "$init" -i "$music" -af 'afade=in:st=0:d=4' -map 0:0 -map 1:0 -shortest -y Final_Endl.mp4
+
+echo "The process has finished."
+if [ ! -d "temp" ]; then
+    mkdir temp
+fi
+
+overlay_pad Final_Endl.mp4
