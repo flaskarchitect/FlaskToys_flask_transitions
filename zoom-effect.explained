@@ -1,0 +1,36 @@
+List="/home/jack/Desktop/HDD500/images/civitai/*.jpg"
+Files=()
+
+# Iterate over the files and add them to the array
+for file in $List; do
+    Files+=("$file")
+done
+
+# Take the first five files in the array
+Files=("${Files[@]:0:5}")
+
+# Use ffmpeg to create the video with zoompan effect
+ffmpeg -hide_banner -framerate 1 -pattern_type glob -i "$List" -vf "scale=8000:-1,zoompan=z='min(zoom+0.001,1.5)':x='iw/2':y='ih/2-4000':d=300:s=512x512,crop=512:512:0:256" -c:v libx264 -pix_fmt yuv420p -r 24 -s 512x512 -y women01.mp4
+
+# Play the output video using VLC (you can change this if needed)
+vlc women01.mp4
+
+
+
+-vf "scale=8000:-1,zoompan=z='min(zoom+0.001,1.5)':x='iw/2':y='ih/2-4000':d=300:s=512x512,crop=512:512:0:256"
+
+    scale=8000:-1: This part of the filter scales the input video. It resizes the video to a width of 8000 pixels, and the height is automatically adjusted to maintain the original aspect ratio. The -1 in the height parameter indicates that the aspect ratio should be automatically calculated.
+
+    zoompan=z='min(zoom+0.001,1.5)': This is the zoom and pan effect. The zoom parameter controls the zoom level. It increases by 0.001 in each frame but is limited to a maximum value of 1.5. So, the zoom starts at 1.0 and gradually increases, but it won't go beyond 1.5.
+
+    x='iw/2': Sets the horizontal position for the zoom and pan effect. It places the center of the zoom at half of the input width (iw/2), making it zoom in from the center horizontally.
+
+    y='ih/2-4000': Sets the vertical position for the zoom and pan effect. It places the center of the zoom 4000 pixels above the center of the input height (ih/2-4000), making it zoom in from above.
+
+    d=300: Specifies the duration of the zoom and pan effect. In this case, it lasts for 300 frames.
+
+    s=512x512: Resizes the video to a final size of 512x512 pixels after the zoom and pan effect.
+
+    crop=512:512:0:256: Crops the video to a final size of 512x512 pixels. The parameters are width:height:x:y. In this case, it crops 512x512 pixels starting from the top left corner (0:256).
+
+In summary, this filter applies a zoom and pan effect to the input video, starting from a center position, gradually zooming in, and then scales and crops the resulting video to a final size of 512x512 pixels. The parameters are carefully adjusted to achieve a specific visual effect during the transition.

@@ -1,0 +1,65 @@
+#!/home/jack/miniconda3/envs/cloned_base/bin/python
+import os
+import subprocess
+import random
+from sys import argv
+import uuid
+import shutil
+def diag_trans(DIR,output_file):
+    image_dir=DIR
+    # Get a list of image file names in the directory
+    image_files = [f for f in os.listdir(image_dir) if f.endswith('.jpg')]
+
+    # Sort the image files to maintain order
+    image_files.sort()
+    VIDEOS=[]
+    random.shuffle(image_files)
+    # Build the full FFmpeg command
+    for i in range(len(image_files)-1):
+        input_file = os.path.join(image_dir, image_files[i])
+        input_file2 = os.path.join(image_dir, image_files[i+1])
+        output_video = f"{i}.mp4"
+        
+        ffmpeg_cmd = [
+            "FFmpeg",
+            "-loop", "1",
+            "-t", "1.5",
+            "-i", input_file,
+            "-loop", "1",
+            "-t", "1.5",
+            "-i", input_file2,  # You may want to adjust this if needed
+            #"-filter_complex", f"[0][1]xfade=transition=diagtr:duration=1:offset=2.5,format=yuv420p",
+            "-filter_complex", f"[0][1]xfade=transition=diagtr:duration=0.5:offset=0.5,format=yuv420p",
+            "-y", output_video
+        ]
+
+        subprocess.run(ffmpeg_cmd)
+        VIDEOS.append(output_video)
+
+    # Create a mylist.txt file
+    with open("mylist.txt", "w") as file:
+        for video in VIDEOS:
+            file.write(f"file '{video}'\n")
+
+    # Concatenate videos using mylist.txt
+    concat_cmd = [
+        "FFmpeg",
+        "-f", "concat",
+        "-safe", "0",
+        "-i", "mylist.txt",
+        "-c", "copy",
+        "-y",
+        output_file
+    ]
+
+    subprocess.run(concat_cmd)
+    uid = str(uuid.uuid4())  # Generate a unique ID using uuid
+    mp4_file =  f"/home/jack/Desktop/HDD500/collections/vids/{uid}.mp4"
+    shutil.copyfile(output_file, mp4_file) 
+    print(f"Video created: {output_file}")
+    print(f"Video copied: {mp4_file}")
+    
+if __name__=="__main__":    
+    DIR=argv[1]
+    output_file = "output5.mp4"
+    diag_trans(DIR,output_file)

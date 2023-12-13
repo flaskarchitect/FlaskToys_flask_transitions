@@ -1,0 +1,32 @@
+#!/bin/bash
+List="$1/*.jpg"
+Files=()
+
+# Logging setup
+log_file="script_log.txt"
+exec > >(tee -a $log_file)  # Redirect stdout to log file
+exec 2>&1  # Redirect stderr to stdout
+
+# Iterate over the files and add them to the array
+for file in $List; do
+    Files+=("$file")
+done
+
+# Take the first five files in the array
+Files=("${Files[@]:0:$2}")
+
+# Get the size of the first image in the array
+first_image="${Files[0]}"
+image_size=$(identify -format "%wx%h" "$first_image")
+echo "Image Size: $image_size"
+
+# Concatenate width and height with ':'
+image_size_concatenated="${image_size%%x*}:${image_size##*x}"
+echo "image_size_concatenated:" $image_size_concatenated
+# Calculate crop offset as a percentage of image height
+offset_percentage=10  # Adjust as needed
+offset=$(( $(echo $image_size | cut -d'x' -f2) * $offset_percentage / 100 ))
+echo "offset:" $offset
+# Use ffmpeg to create the video with zoompan effect
+ffmpeg -hide_banner -framerate 1 -pattern_type glob -i "$List" -vf "scale=8000:-1,zoompan=z='min(zoom+0.001,1.5)':x='iw/2':y='ih/2-4000':d=300,crop=${image_size_concatenated},scale=${image_size_concatenated},crop=512:512:0:$offset" -c:v libx264 -pix_fmt yuv420p -r 24 -s $image_size -y women01aa.mp4
+#vlc women01aa.mp4

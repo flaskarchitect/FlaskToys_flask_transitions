@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Get the name of the current directory
+current_directory="$(basename "$PWD")"
+
+# Generate a text file with image file paths for concatenation
+rm -f image_list.txt
+for img in *.jpg; do
+    echo "file '$img'" >> image_list.txt
+    echo "duration 1" >> image_list.txt
+done
+
+# Use FFmpeg to concatenate the images into a single video with 1-second duration per image
+ffmpeg -f concat -safe 0 -i image_list.txt -framerate 1 -c:v libx264 -r 24 -pix_fmt yuv420p -vf "fps=24" -y "Archive_${current_directory}.mp4"
+
+# Clean up the temporary text file
+rm -f image_list.txt

@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Function to find and display files larger than 35MB
+find_large_files() {
+    echo "Searching for files larger than 35MB..."
+    find . -type f -size +35M -exec ls -lh {} \;
+}
+
+# Function to display the 5 largest files
+find_largest_files() {
+    echo "Finding the 5 largest files..."
+    find . -type f -exec ls -lh {} \; | sort -k5 -rh | head -n 5
+}
+
+# Main menu
+main_menu() {
+    clear
+    echo "File Size Checker"
+    echo "1. Find files larger than 35MB"
+    echo "2. Find the 5 largest files"
+    echo "3. Quit"
+    read -p "Enter your choice: " choice
+
+    case $choice in
+        1) find_large_files ;;
+        2) find_largest_files ;;
+        3) exit ;;
+        *) echo "Invalid choice";;
+    esac
+
+    read -p "Press Enter to continue..."
+    main_menu
+}
+
+main_menu

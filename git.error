@@ -1,0 +1,10 @@
+git clone https://github.com/flaskarchitect/FlaskToys_flask_transitions.git
+git add .
+git commit -m "first push"
+git push
+git lfs track "*.mp4"
+git add .gitattributes
+git add static/videos/kden.mp4
+git commit -m "fix"
+git push
+

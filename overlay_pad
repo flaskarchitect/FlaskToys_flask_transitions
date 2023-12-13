@@ -6,11 +6,21 @@ import glob
 import random
 from PIL import Image
 import cv2
+import os
 import uuid
 import shutil
 from sys import argv
 
-def add_title_image(video_path, hex_color = "#A52A2A"): 
+def add_title_image(video_path, hex_color = "#A52A2A"):
+    # Define the directory path
+    directory_path = "temp"
+    # Check if the directory exists
+    if not os.path.exists(directory_path):
+        # If not, create it
+        os.makedirs(directory_path)
+        print(f"Directory '{directory_path}' created.")
+    else:
+        print(f"Directory '{directory_path}' already exists.") 
     # Load the video file and title image
     video_clip = VideoFileClip(video_path)
     print(video_clip.size)
@@ -77,12 +87,12 @@ def add_title_image(video_path, hex_color = "#A52A2A"):
     # Export the final video with the background music
     composite_clip.write_videofile(output_path)
     uid = str(uuid.uuid4())  # Generate a unique ID using uuid
-    mp4_file =  f"/home/jack/Desktop/HDD500/collections/vids/{uid}.mp4"
+    mp4_file =  f"/home/jack/Desktop/HDD500/collections/vids/Ready_Post_{uid}.mp4"
     shutil.copyfile(output_path, mp4_file)     
     print(mp4_file)
     VIDEO = output_path
     return VIDEO
 if __name__=="__main__":
-    video_path = "/mnt/HDD500/EXPER/static/assets/Title_Image02.png"
+    #video_path = "/mnt/HDD500/EXPER/static/assets/Title_Image02.png"
     video_path = argv[1]
     add_title_image(video_path, hex_color = "#A52A2A")    

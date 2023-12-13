@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Kdenlive Editor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Welcome to Flask Kdenlive Editor</h1>
+
+    <!-- Form for file upload -->
+   <!-- Form for file upload -->
+<form action="{{ url_for('indexk') }}" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".kdenlive">
+    <input type="submit" value="Upload">
+</form>
+
+
+    <!-- Display the loaded project -->
+    {% if project_loaded %}
+        <h2>Loaded Project: {{ project_name }}</h2>
+        <!-- Add editing controls or display the project content here -->
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,50 @@
+#!/bin/sh
+
+DIR=$1
+
+melt \
+  $DIR/00001.jpg in=0 out=60 -mix 60 \
+  $DIR/00002.jpg in=0 out=60 -mix 60 \
+  $DIR/00003.jpg in=0 out=60 -mix 60 \
+  $DIR/00004.jpg in=0 out=60 -mix 60 \
+  $DIR/00005.jpg in=0 out=60 -mix 60 \
+  $DIR/00006.jpg in=0 out=60 -mix 60 \
+  $DIR/00007.jpg in=0 out=60 -mix 60 \
+  $DIR/00008.jpg in=0 out=60 -mix 60 \
+  $DIR/00009.jpg in=0 out=60 -mix 60 \
+  $DIR/00010.jpg in=0 out=60 -mix 60 \
+  $DIR/00011.jpg in=0 out=60 -mix 60 \
+  $DIR/00012.jpg in=0 out=60 -mix 60 \
+  $DIR/00013.jpg in=0 out=60 -mix 60 \
+  $DIR/00014.jpg in=0 out=60 -mix 60 \
+  $DIR/00015.jpg in=0 out=60 -mix 60 \
+  $DIR/00016.jpg in=0 out=60 -mix 60 \
+  $DIR/00017.jpg in=0 out=60 -mix 60 \
+  $DIR/00018.jpg in=0 out=60 -mix 60 \
+  $DIR/00019.jpg in=0 out=60 -mix 60 \
+  $DIR/00020.jpg in=0 out=60 -mix 60 \
+  -attach $DIR/fade_transition.mp4 \
+  -attach $DIR/00001.jpg -mix 60 \
+  -attach $DIR/00002.jpg -mix 60 \
+  -attach $DIR/00003.jpg -mix 60 \
+  -attach $DIR/00004.jpg -mix 60 \
+  -attach $DIR/00005.jpg -mix 60 \
+  -attach $DIR/00006.jpg -mix 60 \
+  -attach $DIR/00007.jpg -mix 60 \
+  -attach $DIR/00008.jpg -mix 60 \
+  -attach $DIR/00009.jpg -mix 60 \
+  -attach $DIR/00010.jpg -mix 60 \
+  -attach $DIR/00011.jpg -mix 60 \
+  -attach $DIR/00012.jpg -mix 60 \
+  -attach $DIR/00013.jpg -mix 60 \
+  -attach $DIR/00014.jpg -mix 60 \
+  -attach $DIR/00015.jpg -mix 60 \
+  -attach $DIR/00016.jpg -mix 60 \
+  -attach $DIR/00017.jpg -mix 60 \
+  -attach $DIR/00018.jpg -mix 60 \
+  -attach $DIR/00019.jpg -mix 60 \
+  -attach $DIR/00020.jpg -mix 60 \
+  -attach /home/jack/Desktop/FlaskAppArchitect_Flask_App_Creator/comic/assets/comic_frame_b-512x768.png -composite 0,0 \
+  -consumer avformat:$DIR/final_video.mp4
+
+vlc $DIR/final_video.mp4

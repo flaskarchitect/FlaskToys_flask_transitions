@@ -1,0 +1,9 @@
+#!/bin/sh
+melt \
+  21.mp4 out=60 -mix 60 -mixer luma \
+  22.mp4 out=60 -mix 60 -mixer luma \
+  23.mp4 out=60 -mix 60 -mixer luma \
+  24.mp4 out=60 -mix 60 -mixer luma \
+  -consumer avformat:all4.mp4
+
+vlc all4.mp4

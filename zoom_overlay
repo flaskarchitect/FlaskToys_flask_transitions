@@ -8,16 +8,10 @@ import random
 import glob
 from sys import argv
 import shutil
-from random import randint
 from moviepy.video.compositing.transitions import slide_in
 from moviepy.video.fx import all
 from moviepy.editor import *
-import glob
-import random
-from PIL import Image
 import cv2
-import uuid
-import shutil
 # Define the directory path
 
 
@@ -49,7 +43,6 @@ def zoom_effect(base_image_path, overlay_image_path):
     fg_copy = fg_copy.resize((int(fg_copy.width), int(fg_copy.height)))
     result_images = []
     for i in range(200):
-        print(".",end="-")
         size = (int(fg_copy.width * (i+1)/200), int(fg_copy.height * (i+1)/200))
         fg_copy_resized = fg_copy.resize(size)
         fg_copy_resized.putalpha(int((i+1)*255/200))
@@ -101,31 +94,13 @@ command = [
 # Join the command into a single string for printing
 command_str = " ".join(command)
 print("Command:", command_str)
-subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
 # Run ffmpeg
-def speed_up():
-    output_fast = 'static/videos/output_fast.mp4'
-    command2 = [
-        "ffmpeg", "-i", "gif/All_gifs2.mp4", "-vf", "setpts=0.09*PTS", "-an", "-y", "static/videos/output_fast.mp4"
-    ]
-    # Join the command into a single string for printing
-    command_str2 = " ".join(command2)
-    print("Command2:", command_str2)
-    # Run ffmpeg
-    subprocess.run(command2, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    uid = str(uuid.uuid4())  # Generate a unique ID using uuid
-    mp4_zoom =  f"/home/jack/Desktop/HDD500/collections/vids/Zoom_Fast_{uid}.mp4"
-    title_image_path = "/mnt/HDD500/EXPER/static/assets/Title_Image02.png"
-    shutil.copyfile(output_fast, mp4_zoom)
-    # Clean up the file list
-    print("Video Created at: ",mp4_zoom)
+# Clean up the file list
+os.remove(file_list)
 
-speed_up()    
-#os.remove(file_list)
-
-
-   
 def HELP():
     text ="""
     DIR="/home/jack/Desktop/LearnFlask_step-by-step/static/imagez/misc_images/"
@@ -205,17 +180,15 @@ def add_title_image(video_path, title_image_path, hex_color = "#94493c"):
     output_path = 'temp/final_output3.mp4'
     # Export the final video with the background music
     composite_clip.write_videofile(output_path)
-    vidpad = video_path.split("/")[-1]  
-    print("vidpad: ",vidpad)
     uid = str(uuid.uuid4())  # Generate a unique ID using uuid
-    mp4_file =  f"/home/jack/Desktop/HDD500/collections/vids/{vidpad}_{uid}.mp4"
+    mp4_file =  f"/home/jack/Desktop/HDD500/collections/vids/{uid}.mp4"
     shutil.copyfile(output_path, mp4_file)     
     print(mp4_file)
     VIDEO = output_path
     return VIDEO
 
 def slidein(DIR):
-    print("slidein_DIR: ",DIR)
+    print(DIR)
     image_files=glob.glob(DIR+"*.jpg")
     print("image_files: ",image_files)
     fps = 25 # Frames per second
@@ -259,7 +232,6 @@ def get_an_mp3():
     return MP3 
 
 def generate_video(DIR):
-        print("generate_video-DIR: ",DIR)
         image_files = glob.glob(DIR+"*.jpg")
         # Shuffle the image files to mix them randomly
         random.shuffle(image_files)
@@ -267,14 +239,13 @@ def generate_video(DIR):
         # Create a temporary directory to store the resized images
         temp_dir = 'temp/'
         os.makedirs(temp_dir, exist_ok=True)
-        print("LEN IMAGE_FILES",len(image_files))    
+
         # Load and resize the images
         resized_images = []
         for image_file in image_files:
-            print("LEN IMAGE_FILES",len(image_files))
-            im = Image.open(image_files[1])
+            im = Image.open(image_file)
             SIZE = im.size
-            print("-",SIZE,end=" ")
+            print("-",end=" ")
             img = cv2.imread(image_file)
             img = cv2.resize(img, SIZE)  # Resize to the same size as the original image
             resized_images.append(img)
@@ -324,85 +295,8 @@ def generate_video(DIR):
         print(final_output_path)
         VIDEO=final_output_path
         return VIDEO
-def mk_video(DIR):
-    vid_filename = 'static/videos/image_show.mp4'
-    image_files = DIR
-    print(image_files)
-    #command2 = f"ffmpeg -framerate 2 -i {image_files} -c:v libx265 -r 30 -pix_fmt yuv420p -t 38 -y {vid_filename}"
-    command2 = f"ffmpeg -framerate 2 -i {image_files}%05d.jpg -c:v libx265 -r 30 -pix_fmt yuv420p -t 38 -y {vid_filename}"
-    subprocess.run(command2, shell=True)
-    uid = str(uuid.uuid4())  # Generate a unique ID using uuid
-    mp4_show =  f"/home/jack/Desktop/HDD500/collections/vids/Image_show_{uid}.mp4"
-    shutil.copyfile(vid_filename, mp4_show)  
-    return vid_filename
-def minterpolate_video(DIR):
-    # Create a unique ID using uuid
-    uid = str(uuid.uuid4())
 
-    # Define the directory containing MP3 files
-    MUSIC_DIR = "/home/jack/Desktop/FlaskAppArchitect_Flask_App_Creator/static/MUSIC/"
 
- # Use glob to get a list of image files in the specified directory
-    image_files = glob.glob(os.path.join(DIR, '*.jpg'))
-
-    # Shuffle the list of image files
-    shuffled_images = random.sample(image_files, len(image_files))
-
-    # Build the ffmpeg command using the shuffled images
-    subprocess.run([
-        'ffmpeg', '-framerate', '17', '-pattern_type', 'glob', '-i', f'{DIR}*.jpg',
-        '-c:v', 'libx265', '-r', '30', '-pix_fmt', 'yuv420p', '-y', 'start.mp4'
-    ])
-
-    subprocess.run([
-        'ffmpeg', '-hide_banner', '-i', 'start.mp4',
-        '-filter:v', "minterpolate='mi_mode=mci:mc_mode=aobmc:vsbmc=1:fps=10'",
-        '-c:v', 'libx264', '-r', '20', '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-y', 'output2.mp4'
-    ])
-
-    subprocess.run([
-        'ffmpeg', '-hide_banner', '-i', 'output2.mp4',
-        '-filter:v', "setpts=7*PTS,minterpolate='fps=25:scd=none:me_mode=bidir:vsbmc=1:search_param=200'",
-        '-y', 'final2l.mp4'
-    ])
-
-    subprocess.run([
-        'ffmpeg', '-hide_banner', '-i', 'final2l.mp4',
-'-filter:v', "setpts=7*PTS,minterpolate='fps=25:scd=none:me_mode=bidir:vsbmc=1:search_param=200'",'-t',' 36',
-        '-y', 'final5l.mp4'
-    ])
-
-    # Use os.path.join to join paths
-    random_mp3 = random.choice(glob.glob(MUSIC_DIR+'*.mp3'))
-
-    # Print the path of the randomly selected MP3 file
-    print(f"Randomly selected MP3 file: {os.path.join(MUSIC_DIR, random_mp3)}")
-
-    # Function to get a random number between 50 and 100
-    def get_random_seconds():
-        return randint(50, 100)
-
-    # Function to get a random music file from the MUSIC array
-    def get_random_music():
-        # Define the directory containing MP3 files
-        MUSIC_DIR = "/home/jack/Desktop/FlaskAppArchitect_Flask_App_Creator/static/MUSIC/"
-        return random.choice(glob.glob(MUSIC_DIR+'*.mp3'))
-
-    # Get random init seconds and music file
-    init_seconds = get_random_seconds()
-    random_music = get_random_music()
-
-    # Run ffmpeg command
-    mp4_show = f"/home/jack/Desktop/HDD500/collections/vids/Minterpolate_{uid}.mp4"
-    subprocess.run([
-        'ffmpeg', '-i', 'final5l.mp4', '-ss', str(init_seconds), '-i', os.path.join(MUSIC_DIR, random_music),
-        '-af', 'afade=in:st=0:d=4,afade=out:st=33:d=3', '-map', '0:0', '-map', '1:0', '-shortest', '-y', mp4_show
-    ])
-
-    # Use shutil.copyfile to copy the final video
-    vid_filename = "static/videos/minterpolate.mp4"
-    shutil.copyfile(mp4_show, vid_filename)
-    return vid_filename
 
 #video_path = slidein(DIR)
 def storeit (video_path):
@@ -411,7 +305,7 @@ def storeit (video_path):
     fname = "POSTED_" + video_path.split("/")[-1]
     print(fname)
     uid = str(uuid.uuid4())  # Generate a unique ID using uuid
-    dest =  f"/home/jack/Desktop/HDD500/collections/vids/storeit_{fname[:-4]}{uid}.mp4"    
+    dest =  f"/home/jack/Desktop/HDD500/collections/vids/{fname[:-4]}{uid}.mp4"    
     print (dest)
     # Join the path parts up to the last directory to reconstruct the base path
     print("Source:", video_path, "  Base Path:", dest)
@@ -431,40 +325,10 @@ def cleanup(directory):
 
 if __name__=="__main__":
    video_path = "gif/All_gifs2.mp4"
-   title_image_path = "static/assets/Title_Image02.png"
+   title_image_path = "/mnt/HDD500/EXPER/static/assets/Title_Image02.png"
    DIR = argv[1]
    print(DIR)
-   print("1------------")  
-   title_image_path = "static/assets/Title_Image02.png"
-   video_path = 'static/videos/output_fast.mp4'
-   DIR = base_image_path
-   add_title_image(video_path, title_image_path, hex_color = "#94493c")
-   print("2------------")  
-   title_image_path = "static/assets/Title_slidein.png"
-   DIR = argv[1]
-   #add_title_image(slidein(DIR), title_image_path, hex_color = "#062f63") 
-   slidein(DIR)
-   print("3---Slidein complete------") 
-   DIR = argv[1] 
-   title_image_path = "static/assets/Fades.png"    
+   add_title_image(slidein(DIR), title_image_path, hex_color = "#062f63")    
    add_title_image(generate_video(DIR), title_image_path, hex_color = "#3c6e5c")
-   print("4------------")
-   title_image_path = "static/assets/Title_Image02.png"  
-   add_title_image(video_path, title_image_path, hex_color = "#3c6e5c")
-   print("5------------")  
-   output_fast = 'static/videos/output_fast.mp4'
-   print("6------------") 
-   add_title_image(output_fast, title_image_path, hex_color = "#3c6e5c")
-   print("7------------")
-   DIR = argv[1] 
-   title_image_path = "static/assets/Title_transitions.png"
-   add_title_image(mk_video(DIR), title_image_path, hex_color = "#088d5b")
-   DIR = argv[1] 
-   title_image_path = "static/assets/Minterpolate-0.png"
-   add_title_image(minterpolate_video(DIR), title_image_path, hex_color = "#088d5b")
-   DIR = argv[1] 
-   title_image_path = "static/assets/Minterpolate.png"
-   add_title_image(minterpolate_video(DIR), title_image_path, hex_color = "#088d5b")
    directory = "gif"
-   cleanup(directory)
-   print("completed") 
+   cleanup(directory) 

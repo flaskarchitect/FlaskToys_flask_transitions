@@ -74,11 +74,11 @@ def makevideo(DIR):
         uid = str(uuid.uuid4())  # Generate a unique ID using uuid
         des=DIR.replace("/","_")
         mp4_file = f"/home/jack/Desktop/HDD500/collections/vids/{des}{uid}.mp4"
+      
         
         video_clip.write_videofile(final_output_path, codec='libx264')
         shutil.copyfile(final_output_path, mp4_file)
-        print(mp4_file)
-        return mp4_file
+        return print(mp4_file)
 if __name__=="__main__":
     DIR=argv[1]
     print (DIR)

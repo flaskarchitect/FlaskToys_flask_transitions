@@ -1,0 +1,10 @@
+#!/bin/sh
+#!/bin/sh
+melt \
+  21.mp4 \
+  22.mp4 \
+  23.mp4 \
+  24.mp4 \
+  -consumer avformat:all4.mp4
+
+vlc all4.mp4 

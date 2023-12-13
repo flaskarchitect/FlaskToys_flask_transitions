@@ -1,0 +1,18 @@
+# EXCELLENT
+List="$1/*.jpg"
+Files=()
+
+# Iterate over the files and add them to the array
+for file in $List; do
+    Files+=("$file")
+done
+
+# Take the first five files in the array
+Files=("${Files[@]:0:$2}")
+
+# Use ffmpeg to create the video with zoompan effect
+ffmpeg -hide_banner -framerate 1 -pattern_type glob -i "$List" -vf "scale=8000:-1,zoompan=z='min(zoom+0.001,1.5)':x='iw/2':y='ih/2-4000':d=300:s=512x512,crop=512:512:0:256" -c:v libx264 -pix_fmt yuv420p -r 24 -s 512x512 -y women01aa.mp4
+overlay_pad women01aa.mp4
+# Play the output video using VLC (you can change this if needed)
+vlc temp/final_output3.mp4
+

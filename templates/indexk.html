@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Kdenlive Editor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Welcome to Flask Kdenlive Editor</h1>
+
+    <!-- Form for file upload -->
+    <form action="{{ url_for('indexk') }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".kdenlive">
+        <input type="submit" value="Upload">
+    </form>
+
+    <!-- Display the loaded project -->
+    {% if project_loaded %}
+        <h2>Loaded Project: {{ project_name }}</h2>
+        <form action="{{ url_for('save_project') }}" method="post">
+            <textarea name="edited_content" rows="10" cols="50">{{ project_content }}</textarea>
+            <br>
+            <input type="submit" value="Save">
+        </form>
+
+        <!-- Button to run melt command -->
+        <form action="{{ url_for('view_melt') }}" method="get">
+            <input type="submit" value="Run Melt Command">
+        </form>
+    {% endif %}
+
+    <!-- Display the melt output -->
+    {% if melt_output %}
+        <h2>Melt Output</h2>
+        <video width="300" height="auto" controls>
+            <source src="{{ url_for('static', filename=video_path) }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    {% endif %}
+</body>
+</html>

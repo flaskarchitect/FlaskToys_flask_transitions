@@ -1,0 +1,17 @@
+
+#!/bin/sh
+VIDEO1=AI_Creates_Beautiful_Women.mp4
+VIDEO1=final2l.mp4 
+VIDEO1=xxxxoutput.mp4
+
+melt \
+  colour:black out=59 $VIDEO1 in=0 out=600 -mix 60 -mixer luma -filter scale=512:768 \
+  colour:black out=59 -mix 60 -mixer luma \
+  colour:black out=59 $VIDEO2 in=0 out=600 -mix 60 -mixer luma -filter scale=512:768 \
+  colour:black out=59 -mix 60 -mixer luma \
+  colour:black out=59 $VIDEO3 in=0 out=600 -mix 60 -mixer luma -filter scale=512:768 \
+  colour:black out=59 -mix 60 -mixer luma \
+  -audio-track $AUDIO out=1802 -attach-track volume:0db end=-70db in=1703 out=1802 \
+  -transition mix in=0 out=1802 \
+  -consumer avformat:test-vid.mp4
+vlc test-vid.mp4

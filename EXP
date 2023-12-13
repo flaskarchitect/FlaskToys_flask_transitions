@@ -1,0 +1,75 @@
+
+#!/bin/sh
+VIDEO1=28.mp4
+VIDEO1=29.mp4
+VIDEO1=30.mp4
+
+melt \
+  colour:black out=59 $VIDEO1 in=0 out=600 -mix 60 -mixer luma -filter scale=1280:720 \
+  colour:black out=59 -mix 60 -mixer luma \
+  colour:black out=59 $VIDEO2 in=0 out=600 -mix 60 -mixer luma -filter scale=1280:720 \
+  colour:black out=59 -mix 60 -mixer luma \
+  colour:black out=59 $VIDEO3 in=0 out=600 -mix 60 -mixer luma -filter scale=1280:720 \
+  colour:black out=59 -mix 60 -mixer luma \
+  -audio-track $AUDIO out=1802 -attach-track volume:0db end=-70db in=1703 out=1802 \
+  -transition mix in=0 out=1802 \
+  -consumer avformat:test-vid.mp4
+
+
+
+
+
+
+#!/bin/sh
+melt \
+  colour:black out=59 $VIDEO1 in=0 out=600 -mix 60 -mixer luma \
+  colour:black out=59 -mix 60 -mixer luma \
+  colour:black out=59 $VIDEO2 in=0 out=600 -mix 60 -mixer luma \
+  colour:black out=59 -mix 60 -mixer luma \
+  colour:black out=59 $VIDEO3 in=0 out=600 -mix 60 -mixer luma \
+  colour:black out=59 -mix 60 -mixer luma \
+  -audio-track $AUDIO out=1802 -attach-track volume:0db end=-70db in=1703 out=1802 \
+  -transition mix in=0 out=1802
+
+
+
+
+
+
+melt colour:black out=650 \
+-track AI_Creates_Beautiful_Women in=0 out=650 \
+-track final2l.mp4 in=0 out=650 \
+-transition composite start=0/0:960x1080 end=0/0:960x1080 distort=1 a_track=0 b_track=1 \
+-transition composite start=960/0:960x1080 end=960/0:960x1080 distort=1 a_track=0 b_track=2 \
+consumer avformat:melt_output_video.mp4
+
+melt photos/.all.jpg ttl=100 \
+-filter watermark:colour:black reverse=1 composite.geometry="0=15%/15%:10%/10%; 0.1625=0/0:100%x100%; -.1625=; -1=70%/70%:10%x10%" composite.mirror_off=1 composite.cycle=100 composite.fill=1 composite.valign=c composite.halign=c \
+$*
+
+melt \
+  music1.ogg in=100 out=224 \
+  -track \
+  watermark1.png out=124 \
+  clip3.mpeg \
+  -mix 25 \
+  -mixer luma resource=luma1.pgm softness=0.2 \
+  -transition mix:-1 in=100 out=124 \
+  input_video.mp4 -filter -brightness 1.5 -output final_video.mp4
+  
+
+  melt \
+clip3.dv \
+-track \
+"+My name is Inigo Montoya.txt" out=99 -blank 49 "+Prepare to die!.txt" out=99 \
+-track \
+-blank 74 "+You killed my father.txt" out=74 \
+-transition composite:"0=50%/20%:5%x4%; -1=10%/20%:80%x12%" distort=1 halign=centre valign=centre in=0 out=99 a_track=0 b_track=1 sliced_composite=1 \
+-transition composite:"0=0%/70%:100%x10%; -1=100%/70%:100%x10%" in=75 out=149 a_track=0 b_track=2 sliced_composite=1 \
+-transition composite:25%/25%:50%x50% in=150 out=249 a_track=0 b_track=1 sliced_composite=1 \
+$*
+
+
+
+  https://github.com/mltframework/mlt/tree/master
+

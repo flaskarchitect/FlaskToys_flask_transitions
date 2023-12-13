@@ -1,0 +1,10 @@
+#!/bin/sh
+DIR=$1
+melt \
+ $DIR/00001.jpg out=60 -mix 60 -mixer luma \
+ $DIR/00002.jpg in=0 out=60 -mix 60 -mixer luma \
+  $DIR/00003.jpg in=0 out=60 -mix 60 -mixer luma \
+  $DIR/00004.jpg in=0 out=60 -mix 60 -mixer luma \
+  -consumer avformat:$DIR/fade_transition.mp4
+
+vlc $DIR/fade_transition.mp4

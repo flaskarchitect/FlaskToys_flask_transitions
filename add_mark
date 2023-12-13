@@ -1,0 +1,27 @@
+#!/bin/sh
+rm script_log.txt
+# Add logging
+log_file="script_log.txt"
+exec > >(tee -a "$log_file") 2>&1
+echo "Script started at $(date)"
+
+# Get the current date and time
+suf=$(date +'%Y%m%d%H%M%S')
+
+# Set the path to the watermark image
+watermark_path="$(pwd)/comic_frame_b-512x768.png"
+
+# Step 1: Create the video without the watermark
+melt all4.mp4 -consumer avformat:${suf}_video_without_watermark.mp4
+
+# Step 2: Apply the watermark to the video
+  
+melt ${suf}_video_without_watermark.mp4 -attach $watermark_path -geometry "0x0" -mix 60 \
+  -consumer avformat:${suf}_watermarked_video.mp4
+
+# Add logging
+echo "Script completed at $(date)"
+echo "Log file: $log_file"
+sub=/opt/sublime_text/sublime_text
+$sub script_log.txt
+vlc ${suf}_watermarked_video.mp4
